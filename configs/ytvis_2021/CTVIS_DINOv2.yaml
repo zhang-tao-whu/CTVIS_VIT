@@ -1,5 +1,6 @@
 _BASE_: [ "../_base_/M2F.yaml", "../_base_/DINOv2_Adapter.yaml", "../_base_/YTVIS2021.yaml"]
 MODEL:
+  WEIGHTS: "checkpoints/mask2former_Dinov2vitl_Adapter.pth"
   META_ARCHITECTURE: "CTVISModel"
   MASK_FORMER:
     TRANSFORMER_DECODER_NAME: "CLMultiScaleMaskedTransformerDecoder"
