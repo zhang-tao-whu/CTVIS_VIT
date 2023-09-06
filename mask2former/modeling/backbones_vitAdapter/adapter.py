@@ -273,6 +273,7 @@ class InteractionBlockWithCls_Efficient(nn.Module):
                 for idx, blk in enumerate(blocks):
                     x = blk(x)
                 cls, x = x[:, :1, ], x[:, 1:, ]
+            x, cls = x.detach(), cls.detach()
         c = self.extractor(query=c, reference_points=deform_inputs2[0],
                            feat=x, spatial_shapes=deform_inputs2[1],
                            level_start_index=deform_inputs2[2], H=H, W=W)
