@@ -261,6 +261,24 @@ class InteractionBlockWithCls_Efficient(nn.Module):
         else:
             self.extra_extractors = None
 
+    def foward_vit_blocks(self, blocks, x, windows_nums=3):
+        bs = x.shape[0]
+        nums = bs // windows_nums
+        if bs != windows_nums * nums:
+            nums += 1
+
+        ret = []
+        for i in range(nums):
+            start = i * windows_nums
+            end = min(start + windows_nums, bs)
+            x_ = x[start: end]
+            for idx, blk in enumerate(blocks):
+                x_ = blk(x_)
+            ret.append(x_)
+
+        del x
+        return torch.cat(ret, dim=0)
+
     def forward(self, x, c, cls, blocks, deform_inputs1, deform_inputs2, H, W, finetune=False):
         if finetune:
             x = torch.cat((cls, x), dim=1)
@@ -270,8 +288,9 @@ class InteractionBlockWithCls_Efficient(nn.Module):
         else:
             with torch.no_grad():
                 x = torch.cat((cls, x), dim=1)
-                for idx, blk in enumerate(blocks):
-                    x = blk(x)
+                # for idx, blk in enumerate(blocks):
+                #     x = blk(x)
+                x = self.foward_vit_blocks(blocks, x)
                 cls, x = x[:, :1, ], x[:, 1:, ]
             x, cls = x.detach(), cls.detach()
         c = self.extractor(query=c, reference_points=deform_inputs2[0],
